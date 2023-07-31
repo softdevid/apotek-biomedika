@@ -534,6 +534,7 @@ public class Pembelian extends javax.swing.JInternalFrame {
         loadTabelPembelianDetail();
         totalHarga();
         clearTxtFieldPblDtl();
+        dataUpdate.clear();
       } catch (SQLException ex) {
         System.err.println("Error" + ex.getMessage());
       }
