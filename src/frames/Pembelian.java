@@ -518,8 +518,9 @@ public class Pembelian extends javax.swing.JInternalFrame {
     String hrgJual = txtHrgJual.getText().replace(".", "");
     String tglKdlwrs = sdf.format(jDateTglKdlwrs.getDate());
 
-    if (!dataUpdate.isEmpty() && dataUpdate.get(1).equals("onUpdate")) {
-      try {
+    try {
+      PreparedStatement ps;
+      if (!dataUpdate.isEmpty() && dataUpdate.get(1).equals("onUpdate")) {
         String query = "UPDATE `data_barang` SET "
                 + "`nama_barang`='" + nama + "',"
                 + "`batch`='" + batch + "',"
@@ -528,20 +529,9 @@ public class Pembelian extends javax.swing.JInternalFrame {
                 + "`harga_jual`='" + hrgJual + "',"
                 + "`qty`='" + qty + "' "
                 + "WHERE `id`='" + dataUpdate.get(2) + "'";
-        PreparedStatement ps = (PreparedStatement) conn.prepareStatement(query);
+        ps = (PreparedStatement) conn.prepareStatement(query);
         ps.executeUpdate();
-
-        loadTabelPembelianDetail();
-        totalHarga();
-        clearTxtFieldPblDtl();
-        dataUpdate.clear();
-      } catch (SQLException ex) {
-        System.err.println("Error" + ex.getMessage());
-      }
-    } else {
-      try {
-        PreparedStatement ps;
-
+      } else {
         Statement stm = conn.createStatement();
         String queryCekBarang = "SELECT `id`, `nama_barang`, `batch`, `qty` FROM `data_barang` WHERE `nama_barang` LIKE '%" + nama + "%' AND `batch` LIKE '%" + batch + "%'";
         ResultSet rs = stm.executeQuery(queryCekBarang);
@@ -563,13 +553,14 @@ public class Pembelian extends javax.swing.JInternalFrame {
           ps = (PreparedStatement) conn.prepareStatement(queryPembelianDetail);
           ps.executeUpdate();
         }
-      } catch (SQLException ex) {
-        System.out.println("Error: " + ex.getMessage());
       }
-      loadTabelPembelianDetail();
-      totalHarga();
-      clearTxtFieldPblDtl();
+
+    } catch (SQLException ex) {
+      System.err.println("Error" + ex.getMessage());
     }
+    loadTabelPembelianDetail();
+    totalHarga();
+    clearTxtFieldPblDtl();
   }//GEN-LAST:event_btnTmbhBrgActionPerformed
 
   private void btnLnjutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLnjutActionPerformed

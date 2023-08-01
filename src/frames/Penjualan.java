@@ -37,6 +37,7 @@ public class Penjualan extends javax.swing.JInternalFrame {
   Date date = new Date();
   SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
   NumberFormat kurensiIndonesia = NumberFormat.getCurrencyInstance(new Locale("in", "ID"));
+  ArrayList<String> dataUpdate = new ArrayList<String>(); // baris, status, pembelianDetail_id
 
   /**
    * Creates new form Penjualan
@@ -76,6 +77,9 @@ public class Penjualan extends javax.swing.JInternalFrame {
   // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
   private void initComponents() {
 
+    jPopupMenu = new javax.swing.JPopupMenu();
+    menuEdit = new javax.swing.JMenuItem();
+    menuHapus = new javax.swing.JMenuItem();
     jPanel1 = new javax.swing.JPanel();
     lblCariBarang = new javax.swing.JLabel();
     txtCariBarang = new javax.swing.JTextField();
@@ -84,6 +88,8 @@ public class Penjualan extends javax.swing.JInternalFrame {
     jPanel2 = new javax.swing.JPanel();
     totalHarga = new javax.swing.JLabel();
     jPanel4 = new javax.swing.JPanel();
+    lblBarangId = new javax.swing.JLabel();
+    txtBarangId = new javax.swing.JTextField();
     lblNama = new javax.swing.JLabel();
     txtNama = new javax.swing.JTextField();
     lblBatch = new javax.swing.JLabel();
@@ -101,6 +107,22 @@ public class Penjualan extends javax.swing.JInternalFrame {
     jLabel15 = new javax.swing.JLabel();
     txtBayar = new javax.swing.JFormattedTextField(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#,##0"))));
     txtKembali = new javax.swing.JFormattedTextField();
+
+    menuEdit.setText("Edit");
+    menuEdit.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        menuEditActionPerformed(evt);
+      }
+    });
+    jPopupMenu.add(menuEdit);
+
+    menuHapus.setText("Hapus");
+    menuHapus.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        menuHapusActionPerformed(evt);
+      }
+    });
+    jPopupMenu.add(menuHapus);
 
     setMinimumSize(new java.awt.Dimension(960, 540));
     setPreferredSize(new java.awt.Dimension(1280, 720));
@@ -181,6 +203,11 @@ public class Penjualan extends javax.swing.JInternalFrame {
 
     jPanel4.setBackground(new java.awt.Color(208, 242, 255));
 
+    lblBarangId.setText("ID Barang");
+    lblBarangId.setVisible(false);
+
+    txtBarangId.setVisible(false);
+
     lblNama.setFont(new java.awt.Font("Roboto", 0, 12)); // NOI18N
     lblNama.setText("Nama");
 
@@ -216,7 +243,11 @@ public class Penjualan extends javax.swing.JInternalFrame {
     jPanel4Layout.setHorizontalGroup(
       jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
       .addGroup(jPanel4Layout.createSequentialGroup()
-        .addGap(25, 25, 25)
+        .addContainerGap()
+        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+          .addComponent(lblBarangId)
+          .addComponent(txtBarangId, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
           .addComponent(txtNama, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
           .addComponent(lblNama))
@@ -243,7 +274,9 @@ public class Penjualan extends javax.swing.JInternalFrame {
       .addGroup(jPanel4Layout.createSequentialGroup()
         .addContainerGap(12, Short.MAX_VALUE)
         .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-          .addComponent(lblNama)
+          .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+            .addComponent(lblNama)
+            .addComponent(lblBarangId))
           .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
             .addComponent(lblHrgJual)
             .addComponent(lblQty)
@@ -255,8 +288,9 @@ public class Penjualan extends javax.swing.JInternalFrame {
           .addComponent(txtQty, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
           .addComponent(txtBatch, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
           .addComponent(txtHrgJual, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-          .addComponent(txtTglKdlwrs, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
-        .addGap(11, 11, 11))
+          .addComponent(txtTglKdlwrs, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+          .addComponent(txtBarangId, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+        .addContainerGap(12, Short.MAX_VALUE))
     );
 
     tablePenjualan.setModel(new javax.swing.table.DefaultTableModel(
@@ -330,7 +364,7 @@ public class Penjualan extends javax.swing.JInternalFrame {
             .addComponent(txtBayar, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
             .addGap(18, 18, 18)
             .addComponent(txtKembali, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)))
-        .addContainerGap(24, Short.MAX_VALUE))
+        .addContainerGap(23, Short.MAX_VALUE))
     );
 
     javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -466,26 +500,86 @@ public class Penjualan extends javax.swing.JInternalFrame {
   private void txtQtyKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtQtyKeyPressed
     if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
       String noFaktur = txtNoFaktur.getText();
+      String barangId = txtBarangId.getText();
       String nama = txtNama.getText();
       String qty = txtQty.getText();
       String hrgJual = txtHrgJual.getText().replace(".", "");
       String tglKdlwrs = txtTglKdlwrs.getText();
-
       try {
-        String query = "INSERT INTO `penjualan_detail`(`no_faktur`, `nama_barang`, `tanggal_kedaluwarsa`, `harga_jual`, `qty`) "
-                + "VALUES ('" + noFaktur + "','" + nama + "','" + tglKdlwrs + "','" + hrgJual + "','" + qty + "')";
-        PreparedStatement ps = (PreparedStatement) conn.prepareStatement(query);
-        ps.executeUpdate();
+        PreparedStatement ps;
+        Statement stm = conn.createStatement();
+        String queryCekBarang = "SELECT `qty` FROM `data_barang` WHERE `id`='" + barangId + "'";
+        ResultSet rs = stm.executeQuery(queryCekBarang);
+        if (rs.next()) {
+          if (!dataUpdate.isEmpty() && dataUpdate.get(1).equals("onUpdate")) {
+            String query = "UPDATE `data_barang` SET `qty`='' WHERE `id`='" + barangId + "'";
+            ps = (PreparedStatement) conn.prepareStatement(query);
+            ps.executeUpdate();
+            dataUpdate.clear();
+          } else {
+            String queryInsert = "INSERT INTO `penjualan_detail`(`no_faktur`, `barang_id`, `nama_barang`, `tanggal_kedaluwarsa`, `harga_jual`, `qty`) "
+                    + "VALUES ('" + noFaktur + "','" + barangId + "','" + nama + "','" + tglKdlwrs + "','" + hrgJual + "','" + qty + "')";
+            ps = (PreparedStatement) conn.prepareStatement(queryInsert);
+            ps.executeUpdate();
 
-        loadTabelPenjualanDetail();
-        totalHarga();
-        resetField();
-        txtCariBarang.requestFocus();
+            String queryUpdate = "UPDATE `data_barang` SET `qty`='" + (Integer.valueOf(rs.getString("qty")) - Integer.valueOf(qty)) + "' WHERE `id`='" + barangId + "'";
+            ps = (PreparedStatement) conn.prepareStatement(queryUpdate);
+            ps.executeUpdate();
+          }
+        }
       } catch (SQLException e) {
         System.err.println("Error: " + e.getMessage());
       }
+      loadTabelPenjualanDetail();
+      totalHarga();
+      resetField();
+      txtCariBarang.requestFocus();
     }
   }//GEN-LAST:event_txtQtyKeyPressed
+
+  private void menuEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuEditActionPerformed
+    if (tablePenjualan.getSelectedRow() != -1) {
+      int baris = tablePenjualan.getSelectedRow();
+      dataUpdate.add(String.valueOf(baris)); // baris
+      dataUpdate.add("onUpdate"); // status
+      dataUpdate.add(tablePenjualan.getValueAt(baris, 1).toString()); // pembelianDetail_id
+
+      txtBarangId.setText(tablePenjualan.getValueAt(baris, 2).toString());
+      txtNama.setText(tablePenjualan.getValueAt(baris, 3).toString());
+      txtBatch.setText(tablePenjualan.getValueAt(baris, 4).toString());
+      txtQty.setText(tablePenjualan.getValueAt(baris, 7).toString());
+      txtHrgJual.setText(tablePenjualan.getValueAt(baris, 6).toString());
+      txtTglKdlwrs.setText(tablePenjualan.getValueAt(baris, 5).toString());
+    }
+  }//GEN-LAST:event_menuEditActionPerformed
+
+  private void menuHapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuHapusActionPerformed
+    if (tablePenjualan.getSelectedRow() != -1) {
+
+      String idPenjualanDetail = tablePenjualan.getValueAt(tablePenjualan.getSelectedRow(), 1).toString();
+      String barangId = tablePenjualan.getValueAt(tablePenjualan.getSelectedRow(), 2).toString();
+      String qty = tablePenjualan.getValueAt(tablePenjualan.getSelectedRow(), 7).toString();
+      try {
+        PreparedStatement ps;
+        Statement stm = conn.createStatement();
+        ResultSet res = stm.executeQuery("SELECT `qty` FROM `data_barang` WHERE `id`='" + barangId + "'");
+        if (res.next()) {
+          String queryDelete = "DELETE FROM `penjualan_detail` WHERE `id`='" + idPenjualanDetail + "'";
+          ps = (PreparedStatement) conn.prepareStatement(queryDelete);
+          ps.executeUpdate();
+
+          String queryUpdate = "UPDATE `data_barang` SET `qty`='" + (Integer.valueOf(res.getString("qty")) - Integer.valueOf(qty)) + "' WHERE `id`='" + barangId + "'";
+          ps = (PreparedStatement) conn.prepareStatement(queryUpdate);
+          ps.executeUpdate();
+
+          loadTabelPenjualanDetail();
+          totalHarga();
+        }
+      } catch (SQLException e) {
+        JOptionPane.showMessageDialog(null, "Error saat menghapus data");
+      }
+    }
+  }//GEN-LAST:event_menuHapusActionPerformed
 
   private List<DataPencarian> pencarian(String pencarian) {
     List<DataPencarian> list = new ArrayList<>();
@@ -514,7 +608,9 @@ public class Penjualan extends javax.swing.JInternalFrame {
   private javax.swing.JPanel jPanel2;
   private javax.swing.JPanel jPanel4;
   private javax.swing.JPanel jPanel5;
+  private javax.swing.JPopupMenu jPopupMenu;
   private javax.swing.JScrollPane jScrollPane1;
+  private javax.swing.JLabel lblBarangId;
   private javax.swing.JLabel lblBatch;
   private javax.swing.JLabel lblCariBarang;
   private javax.swing.JLabel lblHrgJual;
@@ -522,8 +618,11 @@ public class Penjualan extends javax.swing.JInternalFrame {
   private javax.swing.JLabel lblNoFaktur;
   private javax.swing.JLabel lblQty;
   private javax.swing.JLabel lblTglKdlwrs;
+  private javax.swing.JMenuItem menuEdit;
+  private javax.swing.JMenuItem menuHapus;
   private javax.swing.JTable tablePenjualan;
   private javax.swing.JLabel totalHarga;
+  private javax.swing.JTextField txtBarangId;
   private javax.swing.JTextField txtBatch;
   private javax.swing.JFormattedTextField txtBayar;
   private javax.swing.JTextField txtCariBarang;
@@ -566,6 +665,7 @@ public class Penjualan extends javax.swing.JInternalFrame {
       ResultSet rs = stm.executeQuery(query);
 
       if (rs.next()) {
+        txtBarangId.setText(rs.getString("id"));
         txtNama.setText(rs.getString("nama_barang"));
         txtBatch.setText(rs.getString("batch"));
         txtHrgJual.setText(rs.getString("harga_jual"));
@@ -584,7 +684,9 @@ public class Penjualan extends javax.swing.JInternalFrame {
     DefaultTableModel model = new DefaultTableModel();
     model.addColumn("No");
     model.addColumn("ID");
+    model.addColumn("ID Barang");
     model.addColumn("Nama Barang");
+    model.addColumn("Batch");
     model.addColumn("Tanggal Kedaluwarsa");
     model.addColumn("Harga Jual");
     model.addColumn("Qty");
@@ -592,7 +694,7 @@ public class Penjualan extends javax.swing.JInternalFrame {
 
     try {
       int no = 1;
-      String query = "SELECT `id`,`nama_barang`,`tanggal_kedaluwarsa`,`harga_jual`,`qty`, (`harga_jual`*`qty`) AS `subtotal` FROM `penjualan_detail` WHERE `no_faktur`='" + noFaktur + "'";
+      String query = "SELECT `pd`.`id`,`pd`.`barang_id`,`pd`.`nama_barang`, `db`.`batch`,`pd`.`tanggal_kedaluwarsa`,`pd`.`harga_jual`,`pd`.`qty`, (`pd`.`harga_jual`*`pd`.`qty`) AS `subtotal` FROM `penjualan_detail` `pd` JOIN `data_barang` `db` ON `pd`.`barang_id`=`db`.`id` WHERE `no_faktur`=" + noFaktur + "'";
       Statement stm = conn.createStatement();
       ResultSet res = stm.executeQuery(query);
 
@@ -600,14 +702,16 @@ public class Penjualan extends javax.swing.JInternalFrame {
         double hrgJual = Double.parseDouble(res.getString("harga_jual"));
         double subtotal = Double.parseDouble(res.getString("subtotal"));
 
-        Object[] o = new Object[7];
+        Object[] o = new Object[9];
         o[0] = no++;
         o[1] = res.getString("id");
-        o[2] = res.getString("nama_barang");
-        o[3] = res.getString("tanggal_kedaluwarsa");
-        o[4] = String.format("%,.2f", hrgJual);
-        o[5] = res.getString("qty");
-        o[6] = String.format("%,.2f", subtotal);
+        o[2] = res.getString("barang_id");
+        o[3] = res.getString("nama_barang");
+        o[4] = res.getString("batch");
+        o[5] = res.getString("tanggal_kedaluwarsa");
+        o[6] = String.format("%,.2f", hrgJual);
+        o[7] = res.getString("qty");
+        o[8] = String.format("%,.2f", subtotal);
 
         model.addRow(o);
       }
@@ -616,6 +720,9 @@ public class Penjualan extends javax.swing.JInternalFrame {
       tablePenjualan.getColumnModel().getColumn(1).setMinWidth(0);
       tablePenjualan.getColumnModel().getColumn(1).setMaxWidth(0);
       tablePenjualan.getColumnModel().getColumn(1).setWidth(0);
+      tablePenjualan.getColumnModel().getColumn(2).setMinWidth(0);
+      tablePenjualan.getColumnModel().getColumn(2).setMaxWidth(0);
+      tablePenjualan.getColumnModel().getColumn(2).setWidth(0);
 
       TableColumnAdjuster tca = new TableColumnAdjuster(tablePenjualan);
       tca.adjustColumns();
@@ -641,6 +748,7 @@ public class Penjualan extends javax.swing.JInternalFrame {
   }
 
   private void resetField() {
+    txtBarangId.setText("");
     txtNama.setText("");
     txtBatch.setText("");
     txtQty.setText("");
