@@ -549,14 +549,15 @@ public class Pembelian extends javax.swing.JInternalFrame {
           pembelianId = getPembelianId();
 
           String queryPembelianDetail = "INSERT INTO `pembelian_detail`(`no_faktur`, `pembelian_id`, `barang_id`, `qty`, `harga_total`) "
-                  + "VALUES ('" + noFaktur + "','" + pembelianId + "','" + barangId + "', '" + qty + "', " + (Integer.parseInt(qty) * Integer.parseInt(hrgStuan)) + "')";
+                  + "VALUES ('" + noFaktur + "','" + pembelianId + "','" + barangId + "', '" + qty + "', '" + (Integer.parseInt(qty) * Integer.parseInt(hrgStuan)) + "')";
           ps = (PreparedStatement) conn.prepareStatement(queryPembelianDetail);
           ps.executeUpdate();
         }
       }
 
     } catch (SQLException ex) {
-      System.err.println("Error" + ex.getMessage());
+      System.err.println("Error : " + ex.getMessage());
+      System.err.println("Error SQL : "+ex.getSQLState());
     }
     loadTabelPembelianDetail();
     totalHarga();
