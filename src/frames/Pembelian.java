@@ -587,7 +587,7 @@ public class Pembelian extends javax.swing.JInternalFrame {
     } else {
       enableTxtFieldPblDtl();
       btnLnjut.setEnabled(false);
-      txtNama.setFocusable(true);
+      txtNama.requestFocus();
     }
   }//GEN-LAST:event_btnLnjutActionPerformed
 
