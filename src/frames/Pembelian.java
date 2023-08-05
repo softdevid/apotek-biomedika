@@ -33,6 +33,7 @@ public class Pembelian extends javax.swing.JInternalFrame {
   String distributorId, barangId;
   NumberFormat kurensiIndonesia = NumberFormat.getCurrencyInstance(new Locale("in", "ID"));
   ArrayList<String> dataUpdate = new ArrayList<>(); // baris, status, dataBarang_id
+  boolean isDeletable;
 
   /**
    * Creates new form Pembelian
@@ -524,7 +525,7 @@ public class Pembelian extends javax.swing.JInternalFrame {
     try {
       PreparedStatement ps;
       if (!dataUpdate.isEmpty() && dataUpdate.get(1).equals("onUpdate")) {
-        String query = "UPDATE `data_barang` SET "
+        String queryBarang = "UPDATE `data_barang` SET "
                 + "`nama_barang`='" + nama + "',"
                 + "`batch`='" + batch + "',"
                 + "`tanggal_kedaluwarsa`='" + tglKdlwrs + "',"
@@ -532,7 +533,14 @@ public class Pembelian extends javax.swing.JInternalFrame {
                 + "`harga_jual`='" + hrgJual + "',"
                 + "`qty`='" + qty + "' "
                 + "WHERE `id`='" + dataUpdate.get(2) + "'";
-        ps = (PreparedStatement) conn.prepareStatement(query);
+        ps = (PreparedStatement) conn.prepareStatement(queryBarang);
+        ps.executeUpdate();
+
+        String queryPembelianDetail = "UPDATE `pembelian_detail` SET "
+                + "`qty`='" + qty + "', "
+                + "`harga_total`='" + (Integer.parseInt(qty) * Integer.parseInt(hrgStuan)) + "' "
+                + "WHERE `barang_id`='" + dataUpdate.get(2) + "'";
+        ps = (PreparedStatement) conn.prepareStatement(queryPembelianDetail);
         ps.executeUpdate();
       } else {
         Statement stm = conn.createStatement();
@@ -542,6 +550,7 @@ public class Pembelian extends javax.swing.JInternalFrame {
           String query = "UPDATE `data_barang` SET `qty`='" + Integer.valueOf(rs.getString("qty")) + Integer.valueOf(qty) + "' WHERE `id`='" + rs.getString("id") + "'";
           ps = (PreparedStatement) conn.prepareStatement(query);
           ps.executeUpdate();
+          isDeletable = false;
         } else {
           String queryDataBarang = "INSERT INTO `data_barang`(`nama_barang`, `batch`, `tanggal_kedaluwarsa`, `harga_satuan`, `harga_jual`, `qty`)"
                   + " VALUES ('" + nama + "','" + batch + "','" + tglKdlwrs + "','" + hrgStuan + "','" + hrgJual + "','" + qty + "')";
@@ -554,11 +563,13 @@ public class Pembelian extends javax.swing.JInternalFrame {
                   + "VALUES ('" + noFaktur + "','" + barangId + "', '" + qty + "', '" + (Integer.parseInt(qty) * Integer.parseInt(hrgStuan)) + "')";
           ps = (PreparedStatement) conn.prepareStatement(queryPembelianDetail);
           ps.executeUpdate();
+          isDeletable = true;
         }
       }
 
     } catch (SQLException ex) {
-      System.err.println("Error" + ex.getMessage());
+      System.err.println("Error " + ex.getMessage());
+      ex.printStackTrace();
     }
     loadTabelPembelianDetail();
     totalHarga();
@@ -638,8 +649,8 @@ public class Pembelian extends javax.swing.JInternalFrame {
       txtNama.setText(tableBarang.getValueAt(baris, 3).toString());
       txtBatch.setText(tableBarang.getValueAt(baris, 4).toString());
       txtQty.setText(tableBarang.getValueAt(baris, 8).toString());
-      txtHrgStuan.setText(tableBarang.getValueAt(baris, 6).toString());
-      txtHrgJual.setText(tableBarang.getValueAt(baris, 7).toString());
+      txtHrgStuan.setText(tableBarang.getValueAt(baris, 6).toString().replace(",00", ""));
+      txtHrgJual.setText(tableBarang.getValueAt(baris, 7).toString().replace(",00", ""));
 
       SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
       try {
@@ -665,14 +676,19 @@ public class Pembelian extends javax.swing.JInternalFrame {
         Statement stm = conn.createStatement();
         ResultSet res = stm.executeQuery("SELECT `qty` FROM `data_barang` WHERE `id`='" + idBarang + "'");
         if (res.next()) {
-          String queryDelete = "DELETE FROM `pembelian_detail` WHERE `id`='" + idPembelianDetail + "'";
-          ps = (PreparedStatement) conn.prepareStatement(queryDelete);
-          ps.executeUpdate();
+          if (isDeletable) {
+            String queryDeletePembelianDetail = "DELETE FROM `pembelian_detail` WHERE `id`='" + idPembelianDetail + "'";
+            ps = (PreparedStatement) conn.prepareStatement(queryDeletePembelianDetail);
+            ps.executeUpdate();
 
-          String queryUpdate = "UPDATE `data_barang` SET `qty`='" + (Integer.valueOf(res.getString("qty")) - Integer.valueOf(qty)) + "' WHERE `id`='" + idBarang + "'";
-          ps = (PreparedStatement) conn.prepareStatement(queryUpdate);
-          ps.executeUpdate();
-
+            String queryDeleteBarang = "DELETE FROM `data_barang` WHERE `id`='" + idBarang + "'";
+            ps = (PreparedStatement) conn.prepareStatement(queryDeleteBarang);
+            ps.executeUpdate();
+          } else {
+            String queryUpdate = "UPDATE `data_barang` SET `qty`='" + (Integer.valueOf(res.getString("qty")) - Integer.valueOf(qty)) + "' WHERE `id`='" + idBarang + "'";
+            ps = (PreparedStatement) conn.prepareStatement(queryUpdate);
+            ps.executeUpdate();
+          }
           loadTabelPembelianDetail();
           totalHarga();
         }

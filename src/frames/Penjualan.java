@@ -421,15 +421,8 @@ public class Penjualan extends javax.swing.JInternalFrame {
 
   private void txtBayarCaretUpdate(javax.swing.event.CaretEvent evt) {//GEN-FIRST:event_txtBayarCaretUpdate
     if (txtBayar.getText().length() != 0) {
-      double value = 0;
       String total = totalHarga.getText();
-
-      try {
-        Number parsedNumber = kurensiIndonesia.parse(total);
-        value = parsedNumber.doubleValue();
-      } catch (ParseException e) {
-        System.out.println("Kesalahan dalam parsing format mata uang.");
-      }
+      double value = parseRupiah(total);
 
       String bayar = txtBayar.getText().replace(".", "");
       double pembayaran = Double.parseDouble(bayar);
@@ -450,19 +443,11 @@ public class Penjualan extends javax.swing.JInternalFrame {
     if (evt.getKeyCode() == KeyEvent.VK_ENTER && !txtBayar.getText().isEmpty()) {
       String noFaktur = txtNoFaktur.getText();
       double bayar = Double.parseDouble(txtBayar.getText().replace(".", ""));
+      double total = parseRupiah(totalHarga.getText());
       try {
-        double valueTotal = 0;
-        String total = totalHarga.getText();
-
-        try {
-          Number parsedNumber = kurensiIndonesia.parse(total);
-          valueTotal = parsedNumber.doubleValue();
-        } catch (ParseException e) {
-          System.out.println("Kesalahan dalam parsing format mata uang.");
-        }
 
         String query = "INSERT INTO `penjualan`(`tanggal_jual`, `no_faktur`, `total`, `bayar`) "
-                + "VALUES (CURRENT_DATE(),'" + noFaktur + "','" + valueTotal + "','" + bayar + "')";
+                + "VALUES (CURRENT_DATE(),'" + noFaktur + "','" + total + "','" + bayar + "')";
         PreparedStatement ps = (PreparedStatement) conn.prepareStatement(query);
         ps.executeUpdate();
 
@@ -548,7 +533,7 @@ public class Penjualan extends javax.swing.JInternalFrame {
       txtNama.setText(tablePenjualan.getValueAt(baris, 3).toString());
       txtBatch.setText(tablePenjualan.getValueAt(baris, 4).toString());
       txtQty.setText(tablePenjualan.getValueAt(baris, 7).toString());
-      txtHrgJual.setText(tablePenjualan.getValueAt(baris, 6).toString());
+      txtHrgJual.setText(tablePenjualan.getValueAt(baris, 6).toString().replace(",00", ""));
       txtTglKdlwrs.setText(tablePenjualan.getValueAt(baris, 5).toString());
     }
   }//GEN-LAST:event_menuEditActionPerformed
@@ -754,5 +739,17 @@ public class Penjualan extends javax.swing.JInternalFrame {
     txtQty.setText("");
     txtHrgJual.setText("");
     txtTglKdlwrs.setText("");
+  }
+
+  private double parseRupiah(String text) {
+    double value = 0;
+    try {
+      Number parsedNumber = kurensiIndonesia.parse(text);
+      value = parsedNumber.doubleValue();
+    } catch (ParseException e) {
+      System.out.println(e.getMessage());
+      e.printStackTrace();
+    }
+    return value;
   }
 }
