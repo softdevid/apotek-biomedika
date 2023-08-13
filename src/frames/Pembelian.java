@@ -34,6 +34,8 @@ public class Pembelian extends javax.swing.JInternalFrame {
   NumberFormat kurensiIndonesia = NumberFormat.getCurrencyInstance(new Locale("in", "ID"));
   ArrayList<String> dataUpdate = new ArrayList<>(); // baris, status, dataBarang_id
   boolean isDeletable;
+  public int[] selectedRowsDataBarang;
+  public boolean isPelunasan;
 
   /**
    * Creates new form Pembelian
@@ -412,6 +414,11 @@ public class Pembelian extends javax.swing.JInternalFrame {
     btnCariBarang.setText("Cari Barang");
 
     btnSelesai.setText("Selesai");
+    btnSelesai.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        btnSelesaiActionPerformed(evt);
+      }
+    });
 
     txtBayar.addCaretListener(new javax.swing.event.CaretListener() {
       public void caretUpdate(javax.swing.event.CaretEvent evt) {
@@ -711,6 +718,7 @@ public class Pembelian extends javax.swing.JInternalFrame {
       String tglFaktur = sdf.format(jDateTglFaktur.getDate());
       String jtuhTmpo = sdf.format(jDateJtuhTmpo.getDate());
       String keterangan = txtKet.getText();
+      String tglLunas;
 
       if (tglTerima.isEmpty()) {
         JOptionPane.showMessageDialog(this, "Pilih tanggal terima");
@@ -726,11 +734,18 @@ public class Pembelian extends javax.swing.JInternalFrame {
         JOptionPane.showMessageDialog(this, "Masukkan keterangan");
       } else {
         try {
+
+          if (jtuhTmpo.equals(sdf.format(date))) {
+            tglLunas = sdf.format(date);
+          } else {
+            tglLunas = "-";
+          }
+
           double bayar = Double.parseDouble(txtBayar.getText().replace(".", ""));
           double kembali = parseRupiah(txtKembali.getText());
 
-          String query = "INSERT INTO `pembelian`(`tanggal_terima`, `pbf_id`, `no_faktur`, `tanggal_faktur`, `jatuh_tempo`, `bayar_total`, `bayar_kembalian`, `keterangan`) "
-                  + "VALUES ('" + tglTerima + "','" + distributorId + "','" + noFaktur + "','" + tglFaktur + "','" + jtuhTmpo + "','" + bayar + "','" + kembali + "','" + kembali + "')";
+          String query = "INSERT INTO `pembelian`(`tanggal_terima`, `pbf_id`, `no_faktur`, `tanggal_faktur`, `jatuh_tempo`, `tanggal_lunas`, `bayar_total`, `bayar_kembalian`, `keterangan`) "
+                  + "VALUES ('" + tglTerima + "','" + distributorId + "','" + noFaktur + "','" + tglFaktur + "','" + jtuhTmpo + "','" + tglLunas + "','" + bayar + "','" + kembali + "','" + keterangan + "')";
           PreparedStatement ps = (PreparedStatement) conn.prepareStatement(query);
           ps.executeUpdate();
 
@@ -742,6 +757,8 @@ public class Pembelian extends javax.swing.JInternalFrame {
           txtKet.setText("-");
           btnLnjut.setEnabled(true);
           clearTxtFieldPblDtl();
+          txtBayar.setText("");
+          txtKembali.setText("");
           totalHarga.setText(kurensiIndonesia.format(Double.parseDouble("0")));
           loadTabelPembelianDetail();
         } catch (SQLException e) {
@@ -794,6 +811,60 @@ public class Pembelian extends javax.swing.JInternalFrame {
       }
     }
   }//GEN-LAST:event_txtBayarCaretUpdate
+
+  private void btnSelesaiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSelesaiActionPerformed
+    String tglTerima = sdf.format(jDateTglTerima.getDate());
+    String noFaktur = txtNoFaktur.getText();
+    String tglFaktur = sdf.format(jDateTglFaktur.getDate());
+    String jtuhTmpo = sdf.format(jDateJtuhTmpo.getDate());
+    String keterangan = txtKet.getText();
+    String tglLunas;
+
+    if (tglTerima.isEmpty()) {
+      JOptionPane.showMessageDialog(this, "Pilih tanggal terima");
+    } else if (cmbBxDistributor.getSelectedIndex() == 0 && distributorId == null) {
+      JOptionPane.showMessageDialog(this, "Pilih Distributor");
+    } else if (noFaktur.isEmpty()) {
+      JOptionPane.showMessageDialog(this, "Masukkan No Faktur");
+    } else if (tglFaktur.isEmpty()) {
+      JOptionPane.showMessageDialog(this, "Pilih tanggal faktur");
+    } else if (jtuhTmpo.isEmpty()) {
+      JOptionPane.showMessageDialog(this, "Pilih tanggal untuk jatuh tempo");
+    } else if (keterangan.isEmpty()) {
+      JOptionPane.showMessageDialog(this, "Masukkan keterangan");
+    } else {
+      try {
+
+        if (jtuhTmpo.equals(sdf.format(date))) {
+          tglLunas = sdf.format(date);
+        } else {
+          tglLunas = "-";
+        }
+
+        String query = "INSERT INTO `pembelian`(`tanggal_terima`, `pbf_id`, `no_faktur`, `tanggal_faktur`, `jatuh_tempo`, `keterangan`) "
+                + "VALUES ('" + tglTerima + "','" + distributorId + "','" + noFaktur + "','" + tglFaktur + "','" + jtuhTmpo + "','" + keterangan + "')";
+        PreparedStatement ps = (PreparedStatement) conn.prepareStatement(query);
+        ps.executeUpdate();
+
+        jDateTglTerima.setDate(date);
+        cmbBxDistributor.setSelectedIndex(0);
+        getNomorFaktur();
+        jDateTglFaktur.setDate(date);
+        jDateJtuhTmpo.setDate(date);
+        txtKet.setText("-");
+        btnLnjut.setEnabled(true);
+        clearTxtFieldPblDtl();
+        txtBayar.setText("");
+        txtKembali.setText("");
+        totalHarga.setText(kurensiIndonesia.format(Double.parseDouble("0")));
+        loadTabelPembelianDetail();
+      } catch (SQLException e) {
+        System.out.println(e.getMessage());
+        e.printStackTrace();
+      }
+    }
+
+  }//GEN-LAST:event_btnSelesaiActionPerformed
 
 
   // Variables declaration - do not modify//GEN-BEGIN:variables

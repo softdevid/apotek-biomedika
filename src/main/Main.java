@@ -30,6 +30,7 @@ public class Main extends javax.swing.JFrame {
    */
   public Main() {
     initComponents();
+    menuLaporanBli.setVisible(false);
     setExtendedState(Main.MAXIMIZED_BOTH);
     menuState();
   }
@@ -376,7 +377,7 @@ public class Main extends javax.swing.JFrame {
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
   private javax.swing.JButton btnLogin;
-  private javax.swing.JDesktopPane desktopPane;
+  public javax.swing.JDesktopPane desktopPane;
   private javax.swing.JDialog dialogLogin;
   private javax.swing.JLabel labelPassword;
   private javax.swing.JLabel labelTitle;
