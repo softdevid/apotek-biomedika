@@ -8,6 +8,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import javax.swing.JDesktopPane;
+import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.plaf.basic.BasicInternalFrameUI;
 import javax.swing.table.DefaultTableModel;
@@ -274,22 +278,30 @@ public class DataBarang extends javax.swing.JInternalFrame {
   }//GEN-LAST:event_tabelDataBarangMouseReleased
 
   private void pelunasanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pelunasanActionPerformed
-    Main main = new Main();
-    Pembelian pembelian = new Pembelian();
+    int[] selectedRows = tabelDataBarang.getSelectedRows();
 
-    if (main.desktopPane.getAllFrames().length > 0) {
-      main.desktopPane.remove(0);
+    StringBuilder barangId = getsBarangIdFromTable(selectedRows);
+    String noFaktur = getsNoFakturFromTable(selectedRows);
+
+    if (noFaktur.equals("")) {
+      JOptionPane.showMessageDialog(null, "Nomor Faktur tidak sama!");
+    } else {
+      System.out.println(barangId);
+      System.out.println(noFaktur);
+
+      JDesktopPane desktopPane = getDesktopPane();
+      Pembelian pembelian = new Pembelian(true, barangId.toString(), noFaktur);
+      
+      desktopPane.add(pembelian);
+      try {
+        pembelian.setMaximum(true);
+      } catch (PropertyVetoException pve) {
+        System.err.println(pve.getMessage());
+      }
+      pembelian.setVisible(true);
+      pembelian.toFront();
+      this.dispose();
     }
-    main.desktopPane.add(pembelian);
-    try {
-      pembelian.setMaximum(true);
-    } catch (PropertyVetoException pve) {
-      System.err.println(pve.getMessage());
-    }
-    pembelian.setVisible(true);
-    pembelian.toFront();
-    pembelian.selectedRowsDataBarang = tabelDataBarang.getSelectedRows();
-    pembelian.isPelunasan = true;
   }//GEN-LAST:event_pelunasanActionPerformed
 
 
@@ -413,6 +425,36 @@ public class DataBarang extends javax.swing.JInternalFrame {
       System.err.println("Error: " + e.getMessage());
       e.printStackTrace();
     }
+  }
+
+  private StringBuilder getsBarangIdFromTable(int[] selectedRows) {
+    StringBuilder barangId = new StringBuilder();
+    for (int row : selectedRows) {
+      Object value = tableModel.getValueAt(row, 1);
+      barangId.append(value).append(",");
+    }
+    if (barangId.length() > 0) {
+      barangId.deleteCharAt(barangId.length() - 1);
+    }
+
+    return barangId;
+  }
+
+  private String getsNoFakturFromTable(int[] selectedRows) {
+    String noFaktur = "";
+    HashSet<String> noFakturValues = new HashSet<>();
+    for (int row : selectedRows) {
+      Object value = tableModel.getValueAt(row, 4);
+      if (value != null) {
+        noFakturValues.add(value.toString());
+      }
+    }
+    if (noFakturValues.size() == 1) {
+      Iterator<String> iterator = noFakturValues.iterator();
+      noFaktur = iterator.next();
+    }
+
+    return noFaktur;
   }
 
 }

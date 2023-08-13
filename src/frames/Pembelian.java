@@ -34,7 +34,7 @@ public class Pembelian extends javax.swing.JInternalFrame {
   NumberFormat kurensiIndonesia = NumberFormat.getCurrencyInstance(new Locale("in", "ID"));
   ArrayList<String> dataUpdate = new ArrayList<>(); // baris, status, dataBarang_id
   boolean isDeletable;
-  public int[] selectedRowsDataBarang;
+  public String selectedBarangId, pelunasanNoFaktur;
   public boolean isPelunasan;
 
   /**
@@ -57,6 +57,28 @@ public class Pembelian extends javax.swing.JInternalFrame {
     if (model.getRowCount() > 0) {
       enableTxtFieldPblDtl();
     }
+  }
+
+  public Pembelian(boolean isPelunasan, String selectedBarangId, String pelunasanNoFaktur) {
+    this.isPelunasan = isPelunasan;
+    this.selectedBarangId = selectedBarangId;
+    this.pelunasanNoFaktur = pelunasanNoFaktur;
+
+    initComponents();
+    ((BasicInternalFrameUI) this.getUI()).setNorthPane(null);
+    ((BasicInternalFrameUI) this.getUI()).setEastPane(null);
+    ((BasicInternalFrameUI) this.getUI()).setSouthPane(null);
+    ((BasicInternalFrameUI) this.getUI()).setWestPane(null);
+    this.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+    jDateTglTerima.setEnabled(false);
+    cmbBxDistributor.setEnabled(false);
+    txtNoFaktur.setEnabled(false);
+    jDateTglFaktur.setEnabled(false);
+    jDateJtuhTmpo.setEnabled(false);
+    jDateTglKdlwrs.setEnabled(false);
+    btnLnjut.setEnabled(false);
+    txtKet.setFocusable(false);
+    pelunasan();
   }
 
   /**
@@ -303,6 +325,7 @@ public class Pembelian extends javax.swing.JInternalFrame {
 
     jDateTglKdlwrs.setBackground(new java.awt.Color(255, 255, 255));
     jDateTglKdlwrs.setDateFormatString("dd MMM yyyy");
+    jDateTglKdlwrs.setEnabled(false);
     jDateTglKdlwrs.setDate(date);
 
     jLabel13.setFont(new java.awt.Font("Roboto", 0, 12)); // NOI18N
@@ -611,7 +634,7 @@ public class Pembelian extends javax.swing.JInternalFrame {
 
   private void cmbBxDistributorItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cmbBxDistributorItemStateChanged
     try {
-      if (cmbBxDistributor.getSelectedIndex() != 0) {
+      if (cmbBxDistributor.getSelectedIndex() != 0 && cmbBxDistributor.getItemCount() != 0) {
         String namaDistributor = cmbBxDistributor.getSelectedItem().toString();
         String query = "SELECT `id` FROM `pbf_distributor` WHERE `nama`='" + namaDistributor + "'";
 
@@ -712,7 +735,7 @@ public class Pembelian extends javax.swing.JInternalFrame {
   }//GEN-LAST:event_txtBayarFocusGained
 
   private void txtBayarKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtBayarKeyPressed
-    if (evt.getKeyCode() == KeyEvent.VK_ENTER && !txtBayar.getText().isEmpty()) {
+    if (evt.getKeyCode() == KeyEvent.VK_ENTER && !txtBayar.getText().isEmpty() && !isPelunasan) {
       String tglTerima = sdf.format(jDateTglTerima.getDate());
       String noFaktur = txtNoFaktur.getText();
       String tglFaktur = sdf.format(jDateTglFaktur.getDate());
@@ -767,6 +790,46 @@ public class Pembelian extends javax.swing.JInternalFrame {
         }
       }
     }
+    if (evt.getKeyCode() == KeyEvent.VK_ENTER && !txtBayar.getText().isEmpty() && isPelunasan) {
+      double bayar = Double.parseDouble(txtBayar.getText().replace(".", ""));
+      double kembali = parseRupiah(txtKembali.getText());
+
+      String query = "UPDATE `pembelian` SET `tanggal_lunas`=CURDATE(),`bayar_total`='" + bayar + "',`bayar_kembalian`='" + kembali + "',`keterangan`='" + txtKet.getText() + "' WHERE `no_faktur`='" + txtNoFaktur.getText() + "'";
+      try {
+        PreparedStatement ps = (PreparedStatement) conn.prepareStatement(query);
+        ps.executeUpdate();
+      } catch (SQLException e) {
+        System.out.println(e.getMessage());
+        e.printStackTrace();
+      } finally {
+        isPelunasan = false;
+        selectedBarangId = "";
+        pelunasanNoFaktur = "";
+        getNomorFaktur();
+        getDistributor();
+        totalHarga.setText(kurensiIndonesia.format(Double.parseDouble("0")));
+        loadTabelPembelianDetail();
+        totalHarga();
+
+        jDateTglTerima.setDate(date);
+        jDateTglFaktur.setDate(date);
+        jDateJtuhTmpo.setDate(date);
+        txtKet.setText("-");
+        btnLnjut.setEnabled(true);
+        clearTxtFieldPblDtl();
+        txtBayar.setText("");
+        txtKembali.setText("");
+
+        jDateTglTerima.setEnabled(true);
+        cmbBxDistributor.setEnabled(true);
+        txtNoFaktur.setEnabled(true);
+        jDateTglFaktur.setEnabled(true);
+        jDateJtuhTmpo.setEnabled(true);
+        jDateTglKdlwrs.setEnabled(true);
+        btnLnjut.setEnabled(true);
+        cmbBxDistributor.setFocusable(true);
+      }
+    }
   }//GEN-LAST:event_txtBayarKeyPressed
 
   private void txtBayarKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtBayarKeyReleased
@@ -785,6 +848,7 @@ public class Pembelian extends javax.swing.JInternalFrame {
       }
     } else {
       txtBayar.setText("0");
+      txtKembali.setText("");
     }
   }//GEN-LAST:event_txtBayarKeyReleased
 
@@ -989,10 +1053,15 @@ public class Pembelian extends javax.swing.JInternalFrame {
 
     try {
       int no = 1;
-      String query = "SELECT pbldt.id, dtbrg.id AS barangID, dtbrg.nama_barang, dtbrg.batch, dtbrg.tanggal_kedaluwarsa, dtbrg.harga_satuan, dtbrg.harga_jual, dtbrg.qty, (dtbrg.harga_satuan * dtbrg.qty) AS harga_total "
-              + "FROM pembelian_detail pbldt "
-              + "JOIN data_barang dtbrg ON pbldt.barang_id = dtbrg.id "
-              + "WHERE pbldt.no_faktur='" + noFaktur + "'";
+      String query;
+      if (isPelunasan) {
+        query = "SELECT pbldt.id, dtbrg.id AS barangID, dtbrg.nama_barang, dtbrg.batch, dtbrg.tanggal_kedaluwarsa, dtbrg.harga_satuan, dtbrg.harga_jual, dtbrg.qty, (dtbrg.harga_satuan * dtbrg.qty) AS harga_total FROM pembelian_detail pbldt JOIN data_barang dtbrg ON pbldt.barang_id = dtbrg.id WHERE dtbrg.id IN (" + selectedBarangId + ")";
+      } else {
+        query = "SELECT pbldt.id, dtbrg.id AS barangID, dtbrg.nama_barang, dtbrg.batch, dtbrg.tanggal_kedaluwarsa, dtbrg.harga_satuan, dtbrg.harga_jual, dtbrg.qty, (dtbrg.harga_satuan * dtbrg.qty) AS harga_total "
+                + "FROM pembelian_detail pbldt "
+                + "JOIN data_barang dtbrg ON pbldt.barang_id = dtbrg.id "
+                + "WHERE pbldt.no_faktur='" + noFaktur + "'";
+      }
       Statement stm = conn.createStatement();
       ResultSet res = stm.executeQuery(query);
 
@@ -1078,5 +1147,28 @@ public class Pembelian extends javax.swing.JInternalFrame {
       e.printStackTrace();
     }
     return kembali;
+  }
+
+  private void pelunasan() {
+    String query = "SELECT bli.tanggal_terima, pbf.nama, bli.no_faktur, bli.tanggal_faktur, bli.jatuh_tempo, bli.keterangan FROM pembelian bli JOIN pbf_distributor pbf ON pbf.id = bli.pbf_id WHERE `no_faktur`='" + pelunasanNoFaktur + "'";
+    SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
+    SimpleDateFormat outputFormat = new SimpleDateFormat("dd MMM yyyy");
+    try {
+      Statement stm = conn.createStatement();
+      ResultSet res = stm.executeQuery(query);
+
+      if (res.next()) {
+        jDateTglTerima.setDate(outputFormat.parse(outputFormat.format(inputFormat.parse(res.getString("tanggal_terima")))));
+        cmbBxDistributor.addItem(res.getString("nama"));
+        txtNoFaktur.setText(res.getString("no_faktur"));
+        jDateTglFaktur.setDate(outputFormat.parse(outputFormat.format(inputFormat.parse(res.getString("tanggal_faktur")))));
+        jDateJtuhTmpo.setDate(outputFormat.parse(outputFormat.format(inputFormat.parse(res.getString("jatuh_tempo")))));
+        txtKet.setText(res.getString("keterangan"));
+      }
+      loadTabelPembelianDetail();
+      totalHarga();
+    } catch (SQLException | ParseException e) {
+      e.printStackTrace();
+    }
   }
 }

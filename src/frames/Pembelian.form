@@ -512,6 +512,7 @@
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
             </Property>
             <Property name="dateFormatString" type="java.lang.String" value="dd MMM yyyy"/>
+            <Property name="enabled" type="boolean" value="false"/>
           </Properties>
           <AuxValues>
             <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="jDateTglKdlwrs.setDate(date);"/>
