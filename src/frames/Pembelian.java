@@ -54,9 +54,8 @@ public class Pembelian extends javax.swing.JInternalFrame {
     totalHarga.setText(kurensiIndonesia.format(Double.parseDouble("0")));
     loadTabelPembelianDetail();
     totalHarga();
-    if (model.getRowCount() > 0) {
-      enableTxtFieldPblDtl();
-    }
+    enableTxtFieldPblDtl();
+
   }
 
   public Pembelian(boolean isPelunasan, String selectedBarangId, String pelunasanNoFaktur) {
@@ -76,7 +75,6 @@ public class Pembelian extends javax.swing.JInternalFrame {
     jDateTglFaktur.setEnabled(false);
     jDateJtuhTmpo.setEnabled(false);
     jDateTglKdlwrs.setEnabled(false);
-    btnLnjut.setEnabled(false);
     txtKet.setFocusable(false);
     pelunasan();
   }
@@ -93,6 +91,7 @@ public class Pembelian extends javax.swing.JInternalFrame {
     jPopupMenu = new javax.swing.JPopupMenu();
     menuEdit = new javax.swing.JMenuItem();
     menuHapus = new javax.swing.JMenuItem();
+    jDialogCariBarang = new javax.swing.JDialog();
     jPanel1 = new javax.swing.JPanel();
     cmbBxDistributor = new javax.swing.JComboBox<>();
     jLabel1 = new javax.swing.JLabel();
@@ -107,7 +106,6 @@ public class Pembelian extends javax.swing.JInternalFrame {
     jLabel6 = new javax.swing.JLabel();
     jScrollPane1 = new javax.swing.JScrollPane();
     txtKet = new javax.swing.JTextArea();
-    btnLnjut = new javax.swing.JButton();
     jPanel2 = new javax.swing.JPanel();
     totalHarga = new javax.swing.JLabel();
     jPanel3 = new javax.swing.JPanel();
@@ -154,6 +152,17 @@ public class Pembelian extends javax.swing.JInternalFrame {
     });
     jPopupMenu.add(menuHapus);
 
+    javax.swing.GroupLayout jDialogCariBarangLayout = new javax.swing.GroupLayout(jDialogCariBarang.getContentPane());
+    jDialogCariBarang.getContentPane().setLayout(jDialogCariBarangLayout);
+    jDialogCariBarangLayout.setHorizontalGroup(
+      jDialogCariBarangLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGap(0, 400, Short.MAX_VALUE)
+    );
+    jDialogCariBarangLayout.setVerticalGroup(
+      jDialogCariBarangLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGap(0, 300, Short.MAX_VALUE)
+    );
+
     setBorder(null);
     setForeground(null);
     setFrameIcon(null);
@@ -198,13 +207,6 @@ public class Pembelian extends javax.swing.JInternalFrame {
     txtKet.setText("-");
     jScrollPane1.setViewportView(txtKet);
 
-    btnLnjut.setText("Lanjut");
-    btnLnjut.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        btnLnjutActionPerformed(evt);
-      }
-    });
-
     javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
     jPanel1.setLayout(jPanel1Layout);
     jPanel1Layout.setHorizontalGroup(
@@ -229,11 +231,8 @@ public class Pembelian extends javax.swing.JInternalFrame {
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
           .addComponent(jDateJtuhTmpo, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-          .addGroup(jPanel1Layout.createSequentialGroup()
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addGap(18, 18, 18)
-            .addComponent(btnLnjut)))
-        .addContainerGap(54, Short.MAX_VALUE))
+          .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
+        .addContainerGap(144, Short.MAX_VALUE))
     );
     jPanel1Layout.setVerticalGroup(
       jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -266,9 +265,7 @@ public class Pembelian extends javax.swing.JInternalFrame {
                 .addComponent(jLabel4)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
           .addGroup(jPanel1Layout.createSequentialGroup()
-            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-              .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-              .addComponent(btnLnjut, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
             .addGap(0, 0, Short.MAX_VALUE))))
     );
 
@@ -325,7 +322,6 @@ public class Pembelian extends javax.swing.JInternalFrame {
 
     jDateTglKdlwrs.setBackground(new java.awt.Color(255, 255, 255));
     jDateTglKdlwrs.setDateFormatString("dd MMM yyyy");
-    jDateTglKdlwrs.setEnabled(false);
     jDateTglKdlwrs.setDate(date);
 
     jLabel13.setFont(new java.awt.Font("Roboto", 0, 12)); // NOI18N
@@ -435,6 +431,11 @@ public class Pembelian extends javax.swing.JInternalFrame {
     jLabel15.setText("KEMBALI");
 
     btnCariBarang.setText("Cari Barang");
+    btnCariBarang.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        btnCariBarangActionPerformed(evt);
+      }
+    });
 
     btnSelesai.setText("Selesai");
     btnSelesai.addActionListener(new java.awt.event.ActionListener() {
@@ -577,8 +578,14 @@ public class Pembelian extends javax.swing.JInternalFrame {
         String queryCekBarang = "SELECT `id`, `nama_barang`, `batch`, `qty` FROM `data_barang` WHERE `nama_barang` LIKE '%" + nama + "%' AND `batch` LIKE '%" + batch + "%'";
         ResultSet rs = stm.executeQuery(queryCekBarang);
         if (rs.next()) {
-          String query = "UPDATE `data_barang` SET `qty`='" + Integer.valueOf(rs.getString("qty")) + Integer.valueOf(qty) + "' WHERE `id`='" + rs.getString("id") + "'";
+          String query = "UPDATE `data_barang` SET `qty`='" + (Integer.parseInt(rs.getString("qty")) + Integer.parseInt(qty)) + "' WHERE `id`='" + rs.getString("id") + "'";
+          System.out.println(query);
           ps = (PreparedStatement) conn.prepareStatement(query);
+          ps.executeUpdate();
+
+          String queryPembelianDetail = "INSERT INTO `pembelian_detail`(`no_faktur`, `barang_id`, `qty`, `harga_total`) "
+                  + "VALUES ('" + noFaktur + "','" + rs.getString("id") + "', '" + qty + "', '" + (Integer.parseInt(qty) * Integer.parseInt(hrgStuan)) + "')";
+          ps = (PreparedStatement) conn.prepareStatement(queryPembelianDetail);
           ps.executeUpdate();
           isDeletable = false;
         } else {
@@ -605,32 +612,6 @@ public class Pembelian extends javax.swing.JInternalFrame {
     totalHarga();
     clearTxtFieldPblDtl();
   }//GEN-LAST:event_btnTmbhBrgActionPerformed
-
-  private void btnLnjutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLnjutActionPerformed
-    String tglTerima = sdf.format(jDateTglTerima.getDate());
-    String noFaktur = txtNoFaktur.getText();
-    String tglFaktur = sdf.format(jDateTglFaktur.getDate());
-    String jtuhTmpo = sdf.format(jDateJtuhTmpo.getDate());
-    String keterangan = txtKet.getText();
-
-    if (tglTerima.isEmpty()) {
-      JOptionPane.showMessageDialog(this, "Pilih tanggal terima");
-    } else if (cmbBxDistributor.getSelectedIndex() == 0 && distributorId == null) {
-      JOptionPane.showMessageDialog(this, "Pilih Distributor");
-    } else if (noFaktur.isEmpty()) {
-      JOptionPane.showMessageDialog(this, "Masukkan No Faktur");
-    } else if (tglFaktur.isEmpty()) {
-      JOptionPane.showMessageDialog(this, "Pilih tanggal faktur");
-    } else if (jtuhTmpo.isEmpty()) {
-      JOptionPane.showMessageDialog(this, "Pilih tanggal untuk jatuh tempo");
-    } else if (keterangan.isEmpty()) {
-      JOptionPane.showMessageDialog(this, "Masukkan keterangan");
-    } else {
-      enableTxtFieldPblDtl();
-      btnLnjut.setEnabled(false);
-      txtNama.requestFocus();
-    }
-  }//GEN-LAST:event_btnLnjutActionPerformed
 
   private void cmbBxDistributorItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cmbBxDistributorItemStateChanged
     try {
@@ -778,7 +759,6 @@ public class Pembelian extends javax.swing.JInternalFrame {
           jDateTglFaktur.setDate(date);
           jDateJtuhTmpo.setDate(date);
           txtKet.setText("-");
-          btnLnjut.setEnabled(true);
           clearTxtFieldPblDtl();
           txtBayar.setText("");
           txtKembali.setText("");
@@ -815,7 +795,6 @@ public class Pembelian extends javax.swing.JInternalFrame {
         jDateTglFaktur.setDate(date);
         jDateJtuhTmpo.setDate(date);
         txtKet.setText("-");
-        btnLnjut.setEnabled(true);
         clearTxtFieldPblDtl();
         txtBayar.setText("");
         txtKembali.setText("");
@@ -826,7 +805,6 @@ public class Pembelian extends javax.swing.JInternalFrame {
         jDateTglFaktur.setEnabled(true);
         jDateJtuhTmpo.setEnabled(true);
         jDateTglKdlwrs.setEnabled(true);
-        btnLnjut.setEnabled(true);
         cmbBxDistributor.setFocusable(true);
       }
     }
@@ -916,7 +894,6 @@ public class Pembelian extends javax.swing.JInternalFrame {
         jDateTglFaktur.setDate(date);
         jDateJtuhTmpo.setDate(date);
         txtKet.setText("-");
-        btnLnjut.setEnabled(true);
         clearTxtFieldPblDtl();
         txtBayar.setText("");
         txtKembali.setText("");
@@ -930,10 +907,13 @@ public class Pembelian extends javax.swing.JInternalFrame {
 
   }//GEN-LAST:event_btnSelesaiActionPerformed
 
+  private void btnCariBarangActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCariBarangActionPerformed
+    jDialogCariBarang.setVisible(true);
+  }//GEN-LAST:event_btnCariBarangActionPerformed
+
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
   private javax.swing.JButton btnCariBarang;
-  private javax.swing.JButton btnLnjut;
   private javax.swing.JButton btnSelesai;
   private javax.swing.JButton btnTmbhBrg;
   private javax.swing.JComboBox<String> cmbBxDistributor;
@@ -941,6 +921,7 @@ public class Pembelian extends javax.swing.JInternalFrame {
   private com.toedter.calendar.JDateChooser jDateTglFaktur;
   private com.toedter.calendar.JDateChooser jDateTglKdlwrs;
   private com.toedter.calendar.JDateChooser jDateTglTerima;
+  private javax.swing.JDialog jDialogCariBarang;
   private javax.swing.JLabel jLabel1;
   private javax.swing.JLabel jLabel10;
   private javax.swing.JLabel jLabel11;

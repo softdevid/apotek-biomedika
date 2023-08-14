@@ -409,6 +409,9 @@ public class Penjualan extends javax.swing.JInternalFrame {
   }//GEN-LAST:event_txtCariBarangMouseClicked
 
   private void txtCariBarangKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtCariBarangKeyReleased
+    if (evt.getKeyCode() == KeyEvent.VK_ESCAPE) {
+      txtBayar.requestFocus();
+    }
     String text = txtCariBarang.getText().trim().toLowerCase();
     pnlPencarian.setData(pencarian(text));
     if (pnlPencarian.getItemSize() > 0) {
@@ -457,8 +460,9 @@ public class Penjualan extends javax.swing.JInternalFrame {
         resetField();
         txtBayar.setText("0");
         txtKembali.setText(kurensiIndonesia.format(Double.parseDouble("0")));
-      } catch (SQLException ex) {
-        System.err.println("Error: " + ex.getMessage());
+      } catch (SQLException e) {
+        System.err.println("Error: " + e.getMessage());
+        e.printStackTrace();
       }
     }
   }//GEN-LAST:event_txtBayarKeyPressed
@@ -475,6 +479,7 @@ public class Penjualan extends javax.swing.JInternalFrame {
         txtBayar.setCaretPosition(newCaretPosition);
       } catch (NumberFormatException e) {
         System.err.println("Error: " + e.getMessage());
+        e.printStackTrace();
       }
     } else {
       txtBayar.setText("0");
@@ -514,6 +519,7 @@ public class Penjualan extends javax.swing.JInternalFrame {
         }
       } catch (SQLException e) {
         System.err.println("Error: " + e.getMessage());
+        e.printStackTrace();
       }
       loadTabelPenjualanDetail();
       totalHarga();
@@ -562,6 +568,8 @@ public class Penjualan extends javax.swing.JInternalFrame {
         }
       } catch (SQLException e) {
         JOptionPane.showMessageDialog(null, "Error saat menghapus data");
+        System.err.println("Error: " + e.getMessage());
+        e.printStackTrace();
       }
     }
   }//GEN-LAST:event_menuHapusActionPerformed
@@ -578,8 +586,10 @@ public class Penjualan extends javax.swing.JInternalFrame {
       }
       rs.close();
       ps.close();
-    } catch (SQLException ex) {
-      System.err.println(ex.getMessage());
+    } catch (SQLException e) {
+      System.err.println(e.getMessage());
+      System.err.println("Error: " + e.getMessage());
+      e.printStackTrace();
     }
 
     return list;
@@ -638,13 +648,15 @@ public class Penjualan extends javax.swing.JInternalFrame {
       }
     } catch (NumberFormatException | SQLException e) {
       JOptionPane.showMessageDialog(null, e.getMessage());
+      System.err.println("Error: " + e.getMessage());
+      e.printStackTrace();
     }
   }
 
   private void getDataBarang(String data) {
     int index = data.indexOf(" | ");
-    String pembelian_id = (index != -1) ? data.substring(0, index) : data;
-    String query = "SELECT id, nama_barang, batch, harga_jual, tanggal_kedaluwarsa FROM data_barang WHERE dtbrng.id = '" + pembelian_id + "'";
+    String barangId = (index != -1) ? data.substring(0, index) : data;
+    String query = "SELECT id, nama_barang, batch, harga_jual, tanggal_kedaluwarsa FROM data_barang WHERE id = '" + barangId + "'";
     try {
       Statement stm = conn.createStatement();
       ResultSet rs = stm.executeQuery(query);
@@ -660,6 +672,8 @@ public class Penjualan extends javax.swing.JInternalFrame {
       }
     } catch (NumberFormatException | SQLException e) {
       JOptionPane.showMessageDialog(null, e.getMessage());
+      System.err.println("Error: " + e.getMessage());
+      e.printStackTrace();
     }
   }
 
@@ -679,7 +693,7 @@ public class Penjualan extends javax.swing.JInternalFrame {
 
     try {
       int no = 1;
-      String query = "SELECT `pd`.`id`,`pd`.`barang_id`,`pd`.`nama_barang`, `db`.`batch`,`pd`.`tanggal_kedaluwarsa`,`pd`.`harga_jual`,`pd`.`qty`, (`pd`.`harga_jual`*`pd`.`qty`) AS `subtotal` FROM `penjualan_detail` `pd` JOIN `data_barang` `db` ON `pd`.`barang_id`=`db`.`id` WHERE `no_faktur`=" + noFaktur + "'";
+      String query = "SELECT `pd`.`id`,`pd`.`barang_id`,`pd`.`nama_barang`, `db`.`batch`,`pd`.`tanggal_kedaluwarsa`,`pd`.`harga_jual`,`pd`.`qty`, (`pd`.`harga_jual`*`pd`.`qty`) AS `subtotal` FROM `penjualan_detail` `pd` JOIN `data_barang` `db` ON `pd`.`barang_id`=`db`.`id` WHERE `no_faktur`='" + noFaktur + "'";
       Statement stm = conn.createStatement();
       ResultSet res = stm.executeQuery(query);
 
@@ -712,7 +726,8 @@ public class Penjualan extends javax.swing.JInternalFrame {
       TableColumnAdjuster tca = new TableColumnAdjuster(tablePenjualan);
       tca.adjustColumns();
     } catch (NumberFormatException | SQLException e) {
-      System.out.println("Error: " + e.getMessage());
+      System.err.println("Error: " + e.getMessage());
+      e.printStackTrace();
     }
   }
 
@@ -729,6 +744,8 @@ public class Penjualan extends javax.swing.JInternalFrame {
       }
     } catch (NumberFormatException | SQLException e) {
       JOptionPane.showMessageDialog(null, e.getMessage());
+      System.err.println("Error: " + e.getMessage());
+      e.printStackTrace();
     }
   }
 
@@ -747,7 +764,7 @@ public class Penjualan extends javax.swing.JInternalFrame {
       Number parsedNumber = kurensiIndonesia.parse(text);
       value = parsedNumber.doubleValue();
     } catch (ParseException e) {
-      System.out.println(e.getMessage());
+      System.err.println("Error: " + e.getMessage());
       e.printStackTrace();
     }
     return value;

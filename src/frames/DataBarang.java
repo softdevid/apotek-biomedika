@@ -55,7 +55,8 @@ public class DataBarang extends javax.swing.JInternalFrame {
   private void initComponents() {
 
     jPopupMenu = new javax.swing.JPopupMenu();
-    pelunasan = new javax.swing.JMenuItem();
+    itemPelunasan = new javax.swing.JMenuItem();
+    itemHapus = new javax.swing.JMenuItem();
     jPanel = new javax.swing.JPanel();
     jPanel2 = new javax.swing.JPanel();
     jLabel3 = new javax.swing.JLabel();
@@ -75,13 +76,23 @@ public class DataBarang extends javax.swing.JInternalFrame {
       }
     };
 
-    pelunasan.setText("Pelunasan");
-    pelunasan.addActionListener(new java.awt.event.ActionListener() {
+    itemPelunasan.setText("Pelunasan");
+    itemPelunasan.setEnabled(false);
+    itemPelunasan.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
-        pelunasanActionPerformed(evt);
+        itemPelunasanActionPerformed(evt);
       }
     });
-    jPopupMenu.add(pelunasan);
+    jPopupMenu.add(itemPelunasan);
+
+    itemHapus.setText("Hapus");
+    itemHapus.setEnabled(false);
+    itemHapus.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        itemHapusActionPerformed(evt);
+      }
+    });
+    jPopupMenu.add(itemHapus);
 
     setMinimumSize(new java.awt.Dimension(960, 540));
 
@@ -273,11 +284,17 @@ public class DataBarang extends javax.swing.JInternalFrame {
       if (!source.isRowSelected(row)) {
         source.changeSelection(row, column, false, false);
       }
+      if (comboFilterBarang.getSelectedItem() == "Dekat jatuh tempo") {
+        itemPelunasan.setEnabled(true);
+      }
+      if (comboFilterBarang.getSelectedItem() == "Dekat kedaluwarsa") {
+        itemHapus.setEnabled(true);
+      }
       jPopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
     }
   }//GEN-LAST:event_tabelDataBarangMouseReleased
 
-  private void pelunasanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pelunasanActionPerformed
+  private void itemPelunasanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemPelunasanActionPerformed
     int[] selectedRows = tabelDataBarang.getSelectedRows();
 
     StringBuilder barangId = getsBarangIdFromTable(selectedRows);
@@ -291,7 +308,7 @@ public class DataBarang extends javax.swing.JInternalFrame {
 
       JDesktopPane desktopPane = getDesktopPane();
       Pembelian pembelian = new Pembelian(true, barangId.toString(), noFaktur);
-      
+
       desktopPane.add(pembelian);
       try {
         pembelian.setMaximum(true);
@@ -302,11 +319,17 @@ public class DataBarang extends javax.swing.JInternalFrame {
       pembelian.toFront();
       this.dispose();
     }
-  }//GEN-LAST:event_pelunasanActionPerformed
+  }//GEN-LAST:event_itemPelunasanActionPerformed
+
+  private void itemHapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemHapusActionPerformed
+    JOptionPane.showMessageDialog(null, "Data Barang akan di hapus");
+  }//GEN-LAST:event_itemHapusActionPerformed
 
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
   private javax.swing.JComboBox<String> comboFilterBarang;
+  private javax.swing.JMenuItem itemHapus;
+  private javax.swing.JMenuItem itemPelunasan;
   private javax.swing.JLabel jLabel2;
   private javax.swing.JLabel jLabel3;
   private javax.swing.JLabel jLabel4;
@@ -319,7 +342,6 @@ public class DataBarang extends javax.swing.JInternalFrame {
   private javax.swing.JLabel jmlBarangJatuhTempo;
   private javax.swing.JLabel jmlBarangKedaluwarsa;
   private javax.swing.JLabel jmlStokHampirHabis;
-  private javax.swing.JMenuItem pelunasan;
   private javax.swing.JTable tabelDataBarang;
   private javax.swing.JTextField txtCariBarang;
   // End of variables declaration//GEN-END:variables
