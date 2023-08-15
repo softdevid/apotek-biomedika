@@ -7,7 +7,6 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import javax.swing.JDesktopPane;
@@ -15,7 +14,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.plaf.basic.BasicInternalFrameUI;
 import javax.swing.table.DefaultTableModel;
-import main.Main;
 
 /**
  *
@@ -271,7 +269,7 @@ public class DataBarang extends javax.swing.JInternalFrame {
       case 3 ->
         tableData("SELECT dtbrng.id, bli.tanggal_terima, pbf.nama, bli.no_faktur, bli.tanggal_faktur, dtbrng.nama_barang, dtbrng.tanggal_kedaluwarsa, dtbrng.batch, dtbrng.qty, dtbrng.harga_satuan, (dtbrng.qty * dtbrng.harga_satuan) as harga_total, dtbrng.harga_jual, bli.jatuh_tempo, bli.tanggal_lunas FROM data_barang dtbrng JOIN pembelian_detail blidt ON blidt.barang_id = dtbrng.id JOIN pembelian bli ON bli.no_faktur = blidt.no_faktur JOIN pbf_distributor pbf ON bli.pbf_id = pbf.id GROUP BY dtbrng.id, dtbrng.nama_barang HAVING dtbrng.qty<= 10");
       default ->
-        tableData("SELECT dtbrng.id, bli.tanggal_terima, pbf.nama, bli.no_faktur, bli.tanggal_faktur, dtbrng.nama_barang, dtbrng.tanggal_kedaluwarsa, dtbrng.batch, dtbrng.qty, dtbrng.harga_satuan, (dtbrng.qty * dtbrng.harga_satuan) as harga_total, dtbrng.harga_jual, bli.jatuh_tempo, bli.tanggal_lunas FROM data_barang dtbrng JOIN pembelian_detail blidt ON blidt.barang_id = dtbrng.id JOIN pembelian bli ON bli.no_faktur = blidt.no_faktur JOIN pbf_distributor pbf ON bli.pbf_id = pbf.id");
+        tableData("SELECT dtbrng.id, bli.tanggal_terima, pbf.nama, bli.no_faktur, bli.tanggal_faktur, dtbrng.nama_barang, dtbrng.tanggal_kedaluwarsa, dtbrng.batch, dtbrng.qty, dtbrng.harga_satuan, (dtbrng.qty * dtbrng.harga_satuan) as harga_total, dtbrng.harga_jual, bli.jatuh_tempo, bli.tanggal_lunas FROM data_barang dtbrng JOIN pembelian_detail blidt ON blidt.barang_id = dtbrng.id JOIN pembelian bli ON bli.no_faktur = blidt.no_faktur JOIN pbf_distributor pbf ON bli.pbf_id = pbf.id GROUP BY dtbrng.id");
     }
   }//GEN-LAST:event_comboFilterBarangItemStateChanged
 
@@ -364,7 +362,7 @@ public class DataBarang extends javax.swing.JInternalFrame {
     tableModel.addColumn("Jatuh Tempo");
     tableModel.addColumn("Tanggal Lunas");
 
-    tableData("SELECT dtbrng.id, bli.tanggal_terima, pbf.nama, bli.no_faktur, bli.tanggal_faktur, dtbrng.nama_barang, dtbrng.tanggal_kedaluwarsa, dtbrng.batch, dtbrng.qty, dtbrng.harga_satuan, (dtbrng.qty * dtbrng.harga_satuan) as harga_total, dtbrng.harga_jual, bli.jatuh_tempo, bli.tanggal_lunas FROM data_barang dtbrng JOIN pembelian_detail blidt ON blidt.barang_id = dtbrng.id JOIN pembelian bli ON bli.no_faktur = blidt.no_faktur JOIN pbf_distributor pbf ON bli.pbf_id = pbf.id");
+    tableData("SELECT dtbrng.id, bli.tanggal_terima, pbf.nama, bli.no_faktur, bli.tanggal_faktur, dtbrng.nama_barang, dtbrng.tanggal_kedaluwarsa, dtbrng.batch, dtbrng.qty, dtbrng.harga_satuan, (dtbrng.qty * dtbrng.harga_satuan) as harga_total, dtbrng.harga_jual, bli.jatuh_tempo, bli.tanggal_lunas FROM data_barang dtbrng JOIN pembelian_detail blidt ON blidt.barang_id = dtbrng.id JOIN pembelian bli ON bli.no_faktur = blidt.no_faktur JOIN pbf_distributor pbf ON bli.pbf_id = pbf.id GROUP BY dtbrng.id");
   }
 
   private void barangDekatKadaluwarsa() {
